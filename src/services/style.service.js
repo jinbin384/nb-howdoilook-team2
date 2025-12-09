@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Style } from "../models/Style.js";
 import {
   getStylesList,
@@ -30,3 +31,58 @@ export const findStyleService = async (styleId) => {
 
   return Style.fromEntity(findStyle);
 };
+=======
+// src/services.style.service.js
+// 💡 임시 메모리 저장소 및 ID 카운터 (POST 요청만 처리)
+let stylesStore = [];
+let nextId = 1;
+
+class StyleService {
+  static async register(data) {
+    // 비밀번호 Mocking 처리
+    const hashedPassword = `MOCKED_HASHED_${data.password}`;
+    const { styleItems, ...styleData } = data;
+
+    const newStyle = {
+      id: BigInt(nextId++),
+      ...styleData,
+      password: hashedPassword,
+      created_at: new Date(),
+      updated_at: null,
+      style_items: styleItems.map((item, index) => ({
+        id: BigInt(index + 1),
+        style_id: BigInt(nextId - 1),
+        ...item,
+      })),
+    };
+
+    // 메모리에 저장
+    stylesStore.push(newStyle);
+
+    // BigInt 타입을 문자열로 변환하여 반환
+    const { password, ...responseStyle } = newStyle;
+    return JSON.parse(
+      JSON.stringify(responseStyle, (key, value) =>
+        typeof value === "bigint" ? value.toString() : value
+      )
+    );
+  }
+}
+
+// class StyleService {
+//   /**
+//    * 스타일 등록 비즈니스 로직을 처리합니다.
+//    * @param {object} data - 등록할 스타일 데이터
+//    */
+//   static async register(data) {
+//     return {
+//       id: 1,
+//       title: data.title,
+//       nickname: data.nickname,
+//       tags: data.tags || [],
+//     };
+//   }
+// }
+
+export default StyleService;
+>>>>>>> f3f793b (feat: Implement style post creation logic and error handling)

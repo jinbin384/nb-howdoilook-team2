@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { getStylesService, findStyleService } from "../services/style.service";
 
 // 스타일 목록 조회
@@ -34,3 +35,26 @@ export const findStyleController = async (req, res, next) => {
     next(e);
   }
 };
+=======
+// src/controllers/style.contreller.js
+import StyleService from "../services/style.service.js";
+
+class StyleController {
+  static async createStyle(req, res, next) {
+    const data = req.body;
+
+    try {
+      const newStyle = await StyleService.register(data);
+
+      return res.status(201).json({
+        message: "스타일 등록 성공",
+        data: newStyle,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export default StyleController;
+>>>>>>> f3f793b (feat: Implement style post creation logic and error handling)
