@@ -6,11 +6,11 @@ import {
 
 // 스타일 목록 조회
 // 갤러리 상단에 인기 태그가 표시됩니다. 해당 태그를 클릭하면 그 태그에 해당하는 스타일 목록이 표시됩니다.
-// 페이지네이션이 가능합니다.
 // 최신순, 조회순, 큐레이팅순(큐레이팅 많은 순)으로 정렬 가능합니다.
 // 닉네임, 제목, 상세, 태그로 검색이 가능합니다.
 export const getStylesController = async (req, res, next) => {
   try {
+    //페이지네이션
     const { page = 1, limit = 10, sort = "latest" } = req.query;
 
     const styles = await getStylesService({
@@ -34,7 +34,7 @@ export const findStyleController = async (req, res, next) => {
     const styleId = req.params.id;
     const findStyle = await findStyleService(styleId);
     return res.status(200).json(findStyle);
-  } catch {
+  } catch (e) {
     next(e);
   }
 };
@@ -66,54 +66,54 @@ export const findStyleController = async (req, res, next) => {
 //   }
 // }
 
-// 스타일 수정 API
-updateStyle = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { password, ...updateData } = req.body; // password와 나머지 수정 데이터 분리
+// // 스타일 수정 API
+// updateStyle = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { password, ...updateData } = req.body; // password와 나머지 수정 데이터 분리
 
-    if (!password) {
-      throw new Error("비밀번호를 입력해주세요."); // 혹은 CustomError 사용
-    }
+//     if (!password) {
+//       throw new Error("비밀번호를 입력해주세요."); // 혹은 CustomError 사용
+//     }
 
-    const updatedStyle = await this.styleService.updateStyle(
-      id,
-      password,
-      updateData
-    );
+//     const updatedStyle = await this.styleService.updateStyle(
+//       id,
+//       password,
+//       updateData
+//     );
 
-    return res.status(200).json({ data: updatedStyle });
-  } catch (error) {
-    next(error); // Global Error Handler로 전달
-  }
-};
+//     return res.status(200).json({ data: updatedStyle });
+//   } catch (error) {
+//     next(error); // Global Error Handler로 전달
+//   }
+// };
 
-// 스타일 삭제 API
-deleteStyle = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { password } = req.body;
+// // 스타일 삭제 API
+// deleteStyle = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { password } = req.body;
 
-    if (!password) {
-      throw new Error("비밀번호를 입력해주세요.");
-    }
+//     if (!password) {
+//       throw new Error("비밀번호를 입력해주세요.");
+//     }
 
-    const deletedStyle = await this.styleService.deleteStyle(id, password);
+//     const deletedStyle = await this.styleService.deleteStyle(id, password);
 
-    return res.status(200).json({
-      message: "스타일이 삭제되었습니다.",
-      id: deletedStyle.id,
-    });
-  } catch (error) {
-    next(error); // Global Error Handler로 전달
-  }
-};
+//     return res.status(200).json({
+//       message: "스타일이 삭제되었습니다.",
+//       id: deletedStyle.id,
+//     });
+//   } catch (error) {
+//     next(error); // Global Error Handler로 전달
+//   }
+// };
 
-updateStyle = async (req, res, next) => {
-  /* ... */
-};
-deleteStyle = async (req, res, next) => {
-  /* ... */
-};
+// updateStyle = async (req, res, next) => {
+//   /* ... */
+// };
+// deleteStyle = async (req, res, next) => {
+//   /* ... */
+// };
 
-// export default StyleController;
+// // export default StyleController;

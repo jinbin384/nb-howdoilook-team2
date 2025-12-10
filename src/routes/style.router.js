@@ -1,7 +1,7 @@
 import express from "express";
-import StyleRepository from "../repositories/style.repository.js";
-import StyleService from "../services/style.service.js";
-import StyleController from "../controllers/style.controller.js";
+// import StyleRepository from "../repositories/style.repository.js";
+// import StyleService from "../services/style.service.js";
+// import StyleController from "../controllers/style.controller.js";
 
 import {
   getStylesController,
@@ -23,9 +23,9 @@ router.get("/:id", findStyleController);
 //   StyleController.createStyle
 // );
 
-const styleRepository = new StyleRepository(prisma);
-const styleService = new StyleService(styleRepository);
-const styleController = new StyleController(styleService);
+// const styleRepository = new StyleRepository(prisma);
+// const styleService = new StyleService(styleRepository);
+// const styleController = new StyleController(styleService);
 
 /**
  * @swagger
@@ -116,8 +116,8 @@ const styleController = new StyleController(styleService);
  */
 
 // ▼ API 라우트 정의
-router.get("/", styleController.getStyles); // 목록 조회
-router.put("/:id", styleController.updateStyle); // 수정
-router.delete("/:id", styleController.deleteStyle); // 삭제
+// router.get("/", styleController.getStyles); // 목록 조회
+// router.put("/:id", styleController.updateStyle); // 수정
+// router.delete("/:id", styleController.deleteStyle); // 삭제
 
 export default router;
