@@ -1,4 +1,8 @@
-import { getStylesService, findStyleService } from "../services/style.service";
+import {
+  getStylesService,
+  findStyleService,
+  StyleService,
+} from "../services/style.service";
 
 // 스타일 목록 조회
 // 갤러리 상단에 인기 태그가 표시됩니다. 해당 태그를 클릭하면 그 태그에 해당하는 스타일 목록이 표시됩니다.
@@ -34,3 +38,22 @@ export const findStyleController = async (req, res, next) => {
     next(e);
   }
 };
+
+class StyleController {
+  static async createStyle(req, res, next) {
+    const data = req.body;
+
+    try {
+      const newStyle = await StyleService.register(data);
+
+      return res.status(201).json({
+        message: "스타일 등록 성공",
+        data: newStyle,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export default StyleController;
