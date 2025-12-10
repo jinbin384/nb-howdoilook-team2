@@ -1,72 +1,79 @@
-const CustomError = require("../utils/CustomError");
+import { Style } from "../models/Style.js";
+import {
+  getStylesList,
+  getFindStyle,
+} from "../repositories/style.repository.js";
 
-class StyleService {
-  constructor(styleRepository) {
-    this.styleRepository = styleRepository;
+export const getStylesService = async ({ page, limit, sort }) => {
+  const skip = (page - 1) * limit; //페이지네이션
+
+  // 기본 정렬 조건(생성 시간 순)
+  let orderByOption = { created_at: "desc" };
+
+  if (sort === "views") {
+    orderByOption = { views: "desc" }; // view 오름차순
+  } else if (sort === "curatedCount") {
+    orderByOption = { curatedCount: "desc" }; // curatedCount 오름차순
+  }
+  const styles = await getStylesList({
+    skip, //몇 페이지
+    limit, //한 페이지당 게시글 갯수
+    orderBy: orderByOption, // 무슨 기준으로 데이터를 불러올건지
+  });
+
+  return styles.map((style) => Style.fromEntity(style));
+};
+
+export const findStyleService = async (styleId) => {
+  const findStyle = await getFindStyle(styleId);
+  if (!findStyle) return null; //데이터 없을경우 null 반환
+
+  return Style.fromEntity(findStyle);
+};
+// 스타일 수정 로직
+updateStyle = async (styleId, password, updateData) => {
+  // 1. 해당 스타일 존재 여부 확인
+  const style = await this.styleRepository.findStyleById(styleId);
+  if (!style) {
+    throw new CustomError(404, "존재하지 않는 스타일입니다.");
   }
 
-  // ▼ [NEW] 목록 조회
-  getStyles = async () => {
-    const styles = await this.styleRepository.findAllStyles();
+  // 2. 비밀번호 검증 (단순 문자열 비교 예시, 실제 서비스에선 해시 비교 권장)
+  if (style.password !== password) {
+    throw new CustomError(403, "비밀번호가 일치하지 않습니다.");
+  }
 
-    // (선택 사항) 프론트엔드가 쓰기 편하게 데이터 가공
-    // _count: { curations: 3 } -> curationCount: 3 형태로 변환
-    return styles.map((style) => ({
-      id: style.id,
-      name: style.name,
-      description: style.description,
-      createdAt: style.createdAt,
-      curationCount: style._count.curations, // 개수만 뽑아서 깔끔하게 전달
-    }));
-  };
+  // 3. 수정 진행
+  const updatedStyle = await this.styleRepository.updateStyle(
+    styleId,
+    updateData
+  );
 
-  // 스타일 수정 로직
-  updateStyle = async (styleId, password, updateData) => {
-    // 1. 해당 스타일 존재 여부 확인
-    const style = await this.styleRepository.findStyleById(styleId);
-    if (!style) {
-      throw new CustomError(404, "존재하지 않는 스타일입니다.");
-    }
+  return updatedStyle;
+};
 
-    // 2. 비밀번호 검증 (단순 문자열 비교 예시, 실제 서비스에선 해시 비교 권장)
-    if (style.password !== password) {
-      throw new CustomError(403, "비밀번호가 일치하지 않습니다.");
-    }
+// 스타일 삭제 로직
+deleteStyle = async (styleId, password) => {
+  // 1. 해당 스타일 존재 여부 확인
+  const style = await this.styleRepository.findStyleById(styleId);
+  if (!style) {
+    throw new CustomError(404, "존재하지 않는 스타일입니다.");
+  }
 
-    // 3. 수정 진행
-    const updatedStyle = await this.styleRepository.updateStyle(
-      styleId,
-      updateData
-    );
+  // 2. 비밀번호 검증
+  if (style.password !== password) {
+    throw new CustomError(403, "비밀번호가 일치하지 않습니다.");
+  }
 
-    return updatedStyle;
-  };
+  // 3. 삭제 진행
+  const deletedStyle = await this.styleRepository.deleteStyle(styleId);
 
-  // 스타일 삭제 로직
-  deleteStyle = async (styleId, password) => {
-    // 1. 해당 스타일 존재 여부 확인
-    const style = await this.styleRepository.findStyleById(styleId);
-    if (!style) {
-      throw new CustomError(404, "존재하지 않는 스타일입니다.");
-    }
+  return deletedStyle;
+};
 
-    // 2. 비밀번호 검증
-    if (style.password !== password) {
-      throw new CustomError(403, "비밀번호가 일치하지 않습니다.");
-    }
-
-    // 3. 삭제 진행
-    const deletedStyle = await this.styleRepository.deleteStyle(styleId);
-
-    return deletedStyle;
-  };
-
-  updateStyle = async (styleId, password, updateData) => {
-    /* ... */
-  };
-  deleteStyle = async (styleId, password) => {
-    /* ... */
-  };
-}
-
-module.exports = StyleService;
+updateStyle = async (styleId, password, updateData) => {
+  /* ... */
+};
+deleteStyle = async (styleId, password) => {
+  /* ... */
+};

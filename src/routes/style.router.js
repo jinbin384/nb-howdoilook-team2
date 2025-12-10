@@ -1,12 +1,27 @@
-const express = require("express");
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+import express from "express";
+import StyleRepository from "../repositories/style.repository.js";
+import StyleService from "../services/style.service.js";
+import StyleController from "../controllers/style.controller.js";
 
-const StyleRepository = require("../repositories/style.repository");
-const StyleService = require("../services/style.service");
-const StyleController = require("../controllers/style.controller");
+import {
+  getStylesController,
+  findStyleController,
+  StyleController,
+} from "../controllers/style.controller.js";
+import { validateRegisterStyle } from "../middleware/validation.middleware.js";
 
 const router = express.Router();
+
+router.get("/", getStylesController);
+
+router.get("/:id", findStyleController);
+
+// POST /styles 엔드포인트: 미들웨어를 먼저 실행 후 컨트롤러 호출
+router.post(
+  "/",
+  validateRegisterStyle, // 💡 유효성 검사 미들웨어 적용
+  StyleController.createStyle
+);
 
 const styleRepository = new StyleRepository(prisma);
 const styleService = new StyleService(styleRepository);
@@ -105,4 +120,4 @@ router.get("/", styleController.getStyles); // 목록 조회
 router.put("/:id", styleController.updateStyle); // 수정
 router.delete("/:id", styleController.deleteStyle); // 삭제
 
-module.exports = router;
+export default router;
