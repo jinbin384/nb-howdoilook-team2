@@ -9,6 +9,24 @@ export const getStylesList = async ({ skip, limit, orderBy }) => {
   });
 };
 
+//검색기능
+export const searchStyles = async ({ search, skip, limit, orderBy }) => {
+  return await prisma.style.findMany({
+    where: {
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { nickname: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { tags: { has: search } },
+        { components: { has: search } },
+      ],
+    },
+    skip,
+    take: limit,
+    orderBy,
+  });
+};
+
 // 상세조희
 export const getFindStyle = async (styleId) => {
   return await prisma.style.findUnique({
@@ -23,6 +41,34 @@ export const increaseViewCount = async (styleId) => {
     data: {
       views: { increment: 1 }, //prisma 숫자 증가 연산자
     },
+  });
+};
+
+// 인기태그 순
+export const getPopularTags = async () => {
+  const styles = await prisma.style.findMany({
+    select: { tags: true },
+  });
+
+  const tagCount = {};
+
+  styles.forEach((style) => {
+    style.tags.forEach((tag) => {
+      tagCount[tag] = (tagCount[tag] || 0) + 1;
+    });
+  });
+
+  return Object.entries(tagCount)
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count); //많이 검색된 태그 확인
+};
+
+export const getStylesByTag = async ({ tag, skip, limit, orderBy }) => {
+  return await prisma.style.findMany({
+    where: { tags: { has: tag } },
+    skip,
+    take: limit,
+    orderBy,
   });
 };
 

@@ -1,6 +1,7 @@
 import {
   getStylesService,
   findStyleService,
+  getPopularTagsService,
   // StyleService,
 } from "../services/style.service.js";
 
@@ -11,9 +12,32 @@ import {
 export const getStylesController = async (req, res, next) => {
   try {
     //페이지네이션
-    const { page = 1, limit = 10, sort = "latest" } = req.query;
+    const { page = 1, limit = 10, sort = "latest", search, tag } = req.query;
 
-    const styles = await getStylesService({
+    let styles;
+
+    // 태그 검색
+    if (tag) {
+      styles = await getStylesService({
+        page: Number(page),
+        limit: Number(limit),
+        sort,
+        tag,
+      });
+      return res.status(200).json(styles);
+    }
+    // 일반 검색
+    if (search && search.trim() !== "") {
+      styles = await getStylesService({
+        page: Number(page),
+        limit: Number(limit),
+        sort,
+        search,
+      });
+      return res.status;
+    }
+    // 검색하지 않았을때 기본 목록 조회
+    styles = await getStylesService({
       page: Number(page),
       limit: Number(limit),
       sort,
@@ -34,6 +58,16 @@ export const findStyleController = async (req, res, next) => {
     const styleId = req.params.id;
     const findStyle = await findStyleService(styleId);
     return res.status(200).json(findStyle);
+  } catch (e) {
+    next(e);
+  }
+};
+
+//인기태그
+export const getPopularTagsController = async (req, res, next) => {
+  try {
+    const tags = await getPopularTagsService();
+    return res.status(200).json(tags);
   } catch (e) {
     next(e);
   }

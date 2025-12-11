@@ -6,15 +6,16 @@ import express from "express";
 import {
   getStylesController,
   findStyleController,
+  getPopularTagsController,
   // StyleController,
 } from "../controllers/style.controller.js";
 import { validateRegisterStyle } from "../middleware/validation.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getStylesController);
-
-router.get("/:id", findStyleController);
+router.get("/tags/popular", getPopularTagsController); // 인기태그 목록
+router.get("/", getStylesController); // style 목록 조회
+router.get("/:id", findStyleController); // style 상세조회
 
 // // POST /styles 엔드포인트: 미들웨어를 먼저 실행 후 컨트롤러 호출
 // router.post(
