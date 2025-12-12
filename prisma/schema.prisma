@@ -9,7 +9,10 @@ datasource db {
   provider = "postgresql"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 3c3a81a (갈아엎기)
 
   //url      = env("DATABASE_URL")
 >>>>>>> 447c84a (댓글기능구현3일차)
@@ -107,7 +110,7 @@ model Curation {
 
 model Reply {
   id          BigInt      @id @default(autoincrement())
-  curationId  BigInt      @unique // 1:1 관계를 위해 필수 !
+  curationId  BigInt      @unique // 1:1 관계를 위해 필수!
   content     String
   nickname    String?
   password    String

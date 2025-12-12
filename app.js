@@ -6,11 +6,15 @@ import { errorHandler } from "./src/utils/errorHandler.js";
 import router from "./src/routes/style.router.js";
 import tagRouter from "./src/routes/tag.router.js";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import rankingRouter from "./src/routes/ranking.router.js";
 =======
 import replyRouter from "./routes/reply.router.js";
 >>>>>>> dcc1295 (중간점검)
 
+=======
+import replyRouter from './src/routes/reply.router.js';
+>>>>>>> 3c3a81a (갈아엎기)
 dotenv.config();
 
 const app = express();

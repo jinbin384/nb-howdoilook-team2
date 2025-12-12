@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pkg from "pg";
@@ -11,25 +12,51 @@ const pool = new Pool({
 
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+=======
+import prisma from '../../prisma/prisma.js'; 
+>>>>>>> 3c3a81a (갈아엎기)
 
 export class ReplyRepository {
-  // 댓글 생성
-  async createReply(curationId, nickname, password, content) {
-    return await prisma.reply.create({
+  createReply = async (curationId, content, password, nickname) => {
+    const createdReply = await prisma.reply.create({
       data: {
-        curationId,
-        nickname,
+        curationId: BigInt(curationId), 
+        content,
         password,
+        nickname,
+      },
+    });
+    return createdReply;
+  };
+
+  findReplyById = async (commentId) => {
+    const reply = await prisma.reply.findUnique({
+      where: {
+        id: BigInt(commentId),
+      },
+    });
+    return reply;
+  };
+
+  updateReply = async (commentId, content) => {
+    const updatedReply = await prisma.reply.update({
+      where: {
+        id: BigInt(commentId),
+      },
+      data: {
         content,
       },
     });
-  }
+    return updatedReply;
+  };
 
-  // 특정 큐레이션에 이미 댓글이 있는지 확인(1:1 규칙)
-  async findReplyByCurationId(curationId) {
-    return await prisma.reply.findUnique({
-      where: { curationId },
+  deleteReply = async (commentId) => {
+    const deletedReply = await prisma.reply.delete({
+      where: {
+        id: BigInt(commentId),
+      },
     });
+<<<<<<< HEAD
   }
 
   // ✔ 댓글 id로 조회
@@ -102,3 +129,8 @@ const replyRepository = {
 
 export default replyRepository;
 >>>>>>> a37799b (댓글기능구현3일차)
+=======
+    return deletedReply;
+  };
+}
+>>>>>>> 3c3a81a (갈아엎기)
