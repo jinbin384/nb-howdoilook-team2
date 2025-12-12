@@ -14,15 +14,15 @@ import {
 import { ForbiddenError, NotFoundError } from "../utils/CustomError.js"; // 커스텀 에러
 
 //목록조회, 오프셋페이지네이션, 검색, 정렬기준
-export const getStylesService = async ({ page, limit, sort, search, tag }) => {
+export const getStylesService = async ({ page, limit, sort, search }) => {
   const skip = (page - 1) * limit;
 
   let orderByOption = { createdAt: "desc" };
-  if (sort === "views") orderByOption = { views: "desc" };
+  if (sort === "viewCount") orderByOption = { viewCount: "desc" };
   if (sort === "curatedCount") orderByOption = { curatedCount: "desc" };
 
   const where = {};
-
+  // 검색어가 들어오면 검색 들어왔을때 빈 문자열("")이면 모두 조회되도록 처리
   if (search && search.trim() !== "") {
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },
@@ -30,10 +30,6 @@ export const getStylesService = async ({ page, limit, sort, search, tag }) => {
       { content: { contains: search, mode: "insensitive" } },
       { tags: { has: search } },
     ];
-  }
-
-  if (tag) {
-    where.tags = { has: tag };
   }
 
   const totalItemCount = await countStyles(where);
@@ -83,14 +79,13 @@ export const findStyleService = async (styleId) => {
   };
 };
 
-// 💡 스타일 수정 로직 (추가)
+// // 스타일 수정 로직
 export const updateStyleService = async (styleId, password, updateData) => {
   // 1. 해당 스타일 존재 여부 확인 (비밀번호 검증을 위해 findStyleById 사용)
   const style = await findStyleById(styleId);
   if (!style) {
     throw new NotFoundError("존재하지 않습니다."); // 404
   }
-
   // 2. 비밀번호 검증 (실제 서비스에서는 해싱된 비밀번호 비교 권장)
   if (style.password !== password) {
     throw new ForbiddenError("비밀번호가 틀렸습니다"); // 403

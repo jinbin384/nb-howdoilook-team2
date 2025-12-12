@@ -5,6 +5,7 @@ import {
   deleteStyleService, // 추가
   createStyleService, // 💡 추가: POST 요청 처리를 위한 서비스 함수
 } from "../services/style.service.js";
+import { ValidationError } from "../utils/CustomError.js"; // ValidationError 임포트 추가 (컨트롤러에서 사용되므로)
 
 const serializeBigInt = (data) => {
   return JSON.parse(
@@ -21,14 +22,13 @@ const serializeBigInt = (data) => {
 // 닉네임, 제목, 상세, 태그로 검색이 가능합니다.
 export const getStylesController = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, sort = "latest", search, tag } = req.query;
+    const { page = 1, limit = 10, sort = "latest", search } = req.query;
 
     const styles = await getStylesService({
       page: Number(page),
       limit: Number(limit),
       sort,
       search,
-      tag,
     });
 
     return res.status(200).json(styles);
@@ -44,35 +44,35 @@ export const getStylesController = async (req, res, next) => {
 export const findStyleController = async (req, res, next) => {
   try {
     const styleId = req.params.id;
-    const style = await findStyleService(styleId);
-    if (!styleId) {
-      return res.status(404).json({ message: "스타일을 찾을 수 없습니다." });
-    }
-    return res.status(200).json(style);
+    const findStyle = await findStyleService(styleId);
+    return res.status(200).json(findStyle);
   } catch (e) {
     next(e);
   }
 };
 
-// 💡 스타일 수정 API Handler (추가)
-export const updateStyleController = async (req, res, next) => {
+// POST /style: 새로운 스타일 게시물을 등록합니다.
+export const postStyleController = async (req, res, next) => {
   try {
-    // styleId는 BigInt로 변환하기 위해 문자열로 받음
-    const styleId = req.params.id;
-    const { password, ...updateData } = req.body;
+    const styleServiceInstance = new StyleService();
 
-    // 비밀번호 필수 입력 체크 (400 Bad Request)
-    if (!password || typeof password !== "string") {
-      throw new ValidationError("비밀번호는 필수 입력 항목입니다.");
-    }
-    // TODO: PUT 요청의 updateData에 대한 유효성 검사 미들웨어 추가 필요
+    // 유효성 검사 미들웨어를 통과한 데이터
+    const { nickname, title, content, password, categories, tags, imageUrls } =
+      req.body;
 
-    // Service 레이어 호출
-    const updatedStyle = await updateStyleService(
-      styleId,
+    // 인스턴스를 통해 POST 메서드를 호출
+    const createdStyle = await styleServiceInstance.postStyle({
+      nickname,
+      title,
+      content,
       password,
-      updateData
-    );
+      categories,
+      tags,
+      imageUrls,
+    });
+
+    // 응답 데이터에서 비밀번호 필드 제거 (보안)
+    const { password: _, ...responseStyle } = createdStyle;
 
     // 응답 명세: 200 OK와 수정된 스타일 정보 반환
     return res.status(200).json(updatedStyle);
@@ -81,26 +81,52 @@ export const updateStyleController = async (req, res, next) => {
   }
 };
 
-// 💡 스타일 삭제 API Handler (추가)
-export const deleteStyleController = async (req, res, next) => {
+// 💡 스타일 수정 API Handler (복원)
+export const updateStyleController = async (req, res, next) => {
   try {
     const styleId = req.params.id;
-    const { password } = req.body;
+    const { password, ...updateData } = req.body;
 
-    // 비밀번호 필수 입력 체크 (400 Bad Request)
+    // 비밀번호 필수 입력 체크 (400 Bad Request) - 미들웨어에서 처리되지만, 컨트롤러에서 던진 에러를 핸들하기 위해 ValidationError 임포트 필요
     if (!password || typeof password !== "string") {
       throw new ValidationError("비밀번호는 필수 입력 항목입니다.");
     }
 
     // Service 레이어 호출
+    const updatedStyle = await updateStyleService(
+      styleId,
+      password,
+      updateData
+    );
+
+    // 🚨 [BigInt 처리 추가]: 수정된 객체도 BigInt를 직렬화해야 안전합니다.
+    const safeStyle = serializeBigInt(updatedStyle);
+    const { password: _, ...responseStyle } = safeStyle; // 비밀번호 제거
+
+    // 응답 명세: 200 OK와 수정된 스타일 정보 반환
+    return res.status(200).json(responseStyle);
+  } catch (error) {
+    next(error); // Global Error Handler로 전달
+  }
+};
+
+// 💡 스타일 삭제 API Handler (동일)
+export const deleteStyleController = async (req, res, next) => {
+  try {
+    const styleId = req.params.id;
+    const { password } = req.body;
+
+    if (!password || typeof password !== "string") {
+      throw new ValidationError("비밀번호는 필수 입력 항목입니다.");
+    }
+
     await deleteStyleService(styleId, password);
 
-    // 응답 명세: 200 OK와 메시지 반환
     return res.status(200).json({
       message: "스타일 삭제 성공",
     });
   } catch (error) {
-    next(error); // Global Error Handler로 전달 (403, 404, 500)
+    next(error);
   }
 };
 

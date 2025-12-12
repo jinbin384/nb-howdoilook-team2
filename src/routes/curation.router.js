@@ -1,9 +1,4 @@
-// /src/routes/curation.router.js (순수 함수 기반 ES Module)
-
-// 1. 필요한 모듈 Import: Router는 Named Import로 가져옵니다.
 import { Router } from "express";
-
-// 2. 컨트롤러 함수들을 Named Import 합니다. (함수 기반 컨트롤러라고 가정)
 import {
   createCurationController,
   getCurationListController,
@@ -25,8 +20,8 @@ const curationRouter = Router({
   mergeParams: true, // 부모 라우터에서 전달되는 styleId 등의 파라미터를 사용하기 위해 필요
 });
 
-// 종속된 답글 라우터 마운트
-curationRouter.use("/:curationId/replies", replyRouter);
+// 종속된 답글 라우터 => 라우터 이름 수정 필요
+// curationRouter.use("/:curationId/replies", replyRouter);
 
 // 큐레이션 관련 라우팅 정의
 curationRouter

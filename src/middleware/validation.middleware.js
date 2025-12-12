@@ -1,52 +1,92 @@
 // src/middleware/validation.middleware.js
 import { ValidationError } from "../utils/CustomError.js";
 
-const ALLOWED_ITEM_TYOES = [
-  "상의",
-  "하의",
-  "아우터",
-  "원피스",
-  "신발",
-  "가방",
-  "패션잡화",
+const ALLOWED_ITEM_TYPES = [
+  "top", // 상의
+  "bottom", // 하의
+  "outer", // 아우터
+  "dress", // 원피스
+  "shoes", // 신발
+  "bag", // 가방
+  "accessory", // 패션잡화
 ];
 
+// 스타일 구성 요소의 유효성 검사를 위한 헬퍼 함수
+const validateCategoryItem = (item, typeName) => {
+  if (
+    !item.name || // 의상명
+    !item.brand || // 브랜드명
+    item.price === undefined || // 가격 필수
+    typeof item.price !== "number" // 가격 타입
+  ) {
+    throw new ValidationError(
+      `스타일 구성 요소 '${typeName}'의 정보가 부족하거나 유효하지 않습니다. (name, brand, price 필수)`
+    );
+  }
+  if (item.price < 0) {
+    throw new ValidationError(
+      `스타일 구성 요소 '${typeName}'의 가격은 0 이상이어야 합니다.`
+    );
+  }
+};
+
 export const validateRegisterStyle = (req, res, next) => {
-  const { title, nickname, password, photos, tags, styleItems } = req.body;
+  const { title, nickname, content, password, imageUrls, tags, categories } =
+    req.body;
 
   try {
+    // 1. 필수 항목 검증 (content 추가)
     if (
       !title ||
       !nickname ||
+      !content ||
       !password ||
-      !photos ||
-      photos.length === 0 ||
-      !styleItems
+      !imageUrls ||
+      imageUrls.length === 0 ||
+      !categories
     ) {
       throw new ValidationError(
-        "제목, 닉네임, 비밀번호, 사진(최소1장), 스타일 구성은 필수 입력 항목입니다."
+        "제목, 닉네임, 내용, 비밀번호, 사진(최소1장), 스타일 구성은 필수 입력 항목입니다."
       );
     }
 
+    // 2. 태그 개수 검증
     if (tags && tags.length > 3) {
       throw new ValidationError("태그는 최대 3개까지만 등록할 수 있습니다.");
     }
 
-    for (const item of styleItems) {
-      if (
-        !item.type ||
-        !ALLOWED_ITEM_TYOES.includes(item.type) ||
-        !item.clothing_name ||
-        item.price === undefined ||
-        typeof item.price !== "number"
-      ) {
+    // 3. Categories (스타일 구성) 구조 검증
+    // 최소 하나 이상의 ALLOWED_ITEM_TYPES를 포함합니다.
+    if (typeof categories !== "object" || Array.isArray(categories)) {
+      throw new ValidationError("categories는 객체 형태로 전달되어야 합니다.");
+    }
+
+    // categories 객체의 모든 키(top, bottom 등)를 순회하며 검증
+    const categoryKeys = Object.keys(categories);
+    let hasValidCategory = false;
+
+    for (const key of categoryKeys) {
+      if (ALLOWED_ITEM_TYPES.includes(key)) {
+        hasValidCategory = true;
+        const item = categories[key];
+
+        // 해당 아이템이 존재하면 (예: top: { ... }) 내부 필드 검증 수행
+        if (item) {
+          validateCategoryItem(item, key);
+        }
+      } else {
+        // 정의되지 않은 카테고리 타입이 들어왔을 경우
         throw new ValidationError(
-          `유효하지 않은 스타일 구성 요소입니다. (type: ${item.type}, clothing_name: ${item.clothing_name}, price: ${item.price})`
+          `허용되지 않은 스타일 구성 타입입니다: ${key}`
         );
       }
-      if (item.price < 0) {
-        throw new ValidationError("가격은 0 이상이어야 합니다.");
-      }
+    }
+
+    // 최소한 하나 이상의 스타일 구성 요소가 전달되었는지 확인 (선택적 검증)
+    if (!hasValidCategory) {
+      throw new ValidationError(
+        "스타일 구성(categories)에는 최소한 하나의 유효한 아이템 타입이 포함되어야 합니다."
+      );
     }
 
     next();
@@ -54,6 +94,7 @@ export const validateRegisterStyle = (req, res, next) => {
     next(error);
   }
 };
+
 // /src/middleware/validation.middleware.js 검증
 /**
  * 큐레이팅 등록 (POST /styles/:styleId/curations) 요청 데이터 유효성 검사
@@ -66,23 +107,23 @@ export const validateRegisterCuration = (req, res, next) => {
   try {
     // 요청 본문 (Body)에서 데이터 추출
     const {
-      trndyScore,
-      individualityScore,
-      practicalityScore,
-      costEffectivenessScore,
-      oneLineReview,
-      postNickname,
+      trendy,
+      personality,
+      practicality,
+      costEffectiveness,
+      content,
+      nickname,
       password,
     } = req.body;
     // 1. 필수 필드 존재 여부 검사
     const requiredFields = {
-      trndyScore: "트렌디 점수",
-      individualityScore: "개성 점수",
-      practicalityScore: "실용성 점수",
-      costEffectivenessScore: "가성비 점수",
-      oneLineReview: "한줄 큐레이팅",
-      postNickname: "닉네임",
+      nickname: "닉네임",
+      content: "한줄 큐레이팅",
       password: "비밀번호",
+      trendy: "트렌디 점수",
+      personality: "개성 점수",
+      practicality: "실용성 점수",
+      costEffectiveness: "가성비 점수",
     };
 
     for (const [field, name] of Object.entries(requiredFields)) {
