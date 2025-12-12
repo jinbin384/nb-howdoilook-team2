@@ -6,7 +6,6 @@ import {
   increaseViewCount,
   countStyles,
 } from "../repositories/style.repository.js";
-import prisma from "../utils/prisma.js";
 
 //목록조회, 오프셋페이지네이션, 검색, 정렬기준
 export const getStylesService = async ({ page, limit, sort, search, tag }) => {

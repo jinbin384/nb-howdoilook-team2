@@ -1,5 +1,4 @@
 import {
-<<<<<<< HEAD
   StyleService,
   getStylesService,
   findStyleService,
