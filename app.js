@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import curationRouter from "./src/routes/curation.router.js";
+import imageRouter from "./src/routes/image.router.js";
 import { errorHandler } from "./src/utils/errorHandler.js";
 import router from "./src/routes/style.router.js";
 import tagRouter from "./src/routes/tag.router.js";
@@ -9,6 +10,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 // 💡 BigInt 처리 함수:
 const bigIntToStringOrBypass = (_, value) => {
@@ -24,6 +26,7 @@ app.set("json replacer", bigIntToStringOrBypass);
 app.use("/curations", curationRouter);
 app.use("/styles", router);
 app.use("/tags", tagRouter);
+app.use("/images", imageRouter);
 
 app.get("/", (req, res) => {
   res.json({
