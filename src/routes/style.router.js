@@ -13,8 +13,12 @@ import { validateRegisterStyle } from "../middleware/validation.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getStylesController); // style 목록 조회
-router.get("/:id", findStyleController); // style 상세조회
+// style.router.js에 styleId 파라미터 경로에 curationRouter를 마운트
+router.use("/:styleId/curations", curationRouter);
+
+router.get("/", getStylesController);
+
+router.get("/:id", findStyleController);
 
 // // POST /styles 엔드포인트: 미들웨어를 먼저 실행 후 컨트롤러 호출
 // router.post(

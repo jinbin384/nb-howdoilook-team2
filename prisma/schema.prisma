@@ -28,5 +28,28 @@ model Style {
   createdAt       DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime? @updatedAt @db.Timestamptz(6)
    //1:N 관계
-  //curations       Curation[]
+  curations       Curation[]
+}
+
+
+model Curation {
+  // Primary Key, 자동 증가
+  id          BigInt   @id @default(autoincrement())
+  // style 과는 N:1 관계, Foreign Key - 필수
+  styleId     BigInt
+  style       Style   @relation(fields: [styleId], references: [id])
+
+  nickname    String
+  content     String
+
+  // front-end에서 숫자로만 점수를 받아옴
+  // 점수 - 필수
+  trendy             Int 
+  personality        Int
+  practicality       Int
+  costEffectiveness  Int
+  createdAt          DateTime @default(now())
+  password           String
+  // reply와는 1:1 관계 ( 큐레이팅에 대한 답글은 최대 1개 )
+  // reply Reply?
 }
