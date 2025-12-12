@@ -34,6 +34,8 @@ app.use("/curations", curationRouter);
 app.use("/tags", tagRouter);
 app.use("/images", imageRouter);
 app.use("/ranking", rankingRouter);
+app.use("/images", imageRouter);
+app.use("/ranking", rankingRouter);
 
 app.get("/", (req, res) => {
   res.json({

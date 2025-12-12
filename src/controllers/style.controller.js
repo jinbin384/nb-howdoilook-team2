@@ -22,13 +22,14 @@ const serializeBigInt = (data) => {
 // 닉네임, 제목, 상세, 태그로 검색이 가능합니다.
 export const getStylesController = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, sort = "latest", search } = req.query;
+    const { page = 1, limit = 10, sort = "latest", search, tag } = req.query;
 
     const styles = await getStylesService({
       page: Number(page),
       limit: Number(limit),
       sort,
       search,
+      tag,
     });
 
     return res.status(200).json(styles);
@@ -44,8 +45,11 @@ export const getStylesController = async (req, res, next) => {
 export const findStyleController = async (req, res, next) => {
   try {
     const styleId = req.params.id;
-    const findStyle = await findStyleService(styleId);
-    return res.status(200).json(findStyle);
+    const style = await findStyleService(styleId);
+    if (!styleId) {
+      return res.status(404).json({ message: "스타일을 찾을 수 없습니다." });
+    }
+    return res.status(200).json(style);
   } catch (e) {
     next(e);
   }

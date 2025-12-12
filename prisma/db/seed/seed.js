@@ -140,6 +140,7 @@ async function main() {
     // Reply 달기 위한 첫 번째 큐레이션 가져오기
     const firstCuration = await prisma.curation.findFirst({
       where: { nickname: "Curator1" },
+
       select: { id: true },
     });
 

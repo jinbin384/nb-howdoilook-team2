@@ -39,8 +39,7 @@ export const createCurationController = async (req, res, next) => {
       ...safeCurationData
     } = newCuration;
 
-    return res.status(201).json({
-      message: "큐레이팅이 성공적으로 등록되었습니다.",
+    return res.status(200).json({
       data: safeCurationData,
     });
   } catch (error) {
@@ -52,7 +51,7 @@ export const createCurationController = async (req, res, next) => {
 // ------------------------------------
 // 2. 큐레이팅 수정 (PUT) (Named Export)
 // ------------------------------------
-export const updateCurationController = async (req, res, next) => {
+const updateCurationController = async (req, res, next) => {
   try {
     // 큐레이션 ID는 경로에서 추출
     const curationId = req.params.curationId;
@@ -87,7 +86,7 @@ export const updateCurationController = async (req, res, next) => {
     } = updatedCuration;
 
     return res.status(200).json({
-      message: "큐레이팅이 성공적으로 수정되었습니다.",
+      //message: "큐레이팅이 성공적으로 수정되었습니다.",
       data: safeCurationData,
     });
   } catch (error) {
@@ -98,11 +97,11 @@ export const updateCurationController = async (req, res, next) => {
 // ------------------------------------
 // 3. 큐레이팅 삭제 (DELETE) (Named Export)
 // ------------------------------------
-export const deleteCurationController = async (req, res, next) => {
+const deleteCurationController = async (req, res, next) => {
   try {
     // 큐레이션 ID는 경로에서, 비밀번호는 본문에서 추출
-    const { curationId } = req.params;
-    const { password: inputPassword } = req.body;
+    const curationId = req.params.curationId;
+    const inputPassword = req.body.password;
 
     // 필수 값 검증 (비밀번호는 수정/삭제의 핵심 검증 값입니다.)
     // 입력한 비밀번호가 없을 때
@@ -118,7 +117,7 @@ export const deleteCurationController = async (req, res, next) => {
     );
 
     // 성공 응답 (204 No Content - 내용 없이 성공)
-    return res.status(200).json({ message: message });
+    return res.status(204).json({ message });
   } catch (error) {
     next(error);
   }
@@ -145,12 +144,10 @@ export const getCurationListController = async (req, res, next) => {
 
     // 성공 응답 (200 OK)
     return res.status(200).json({
-      message: "큐레이팅 목록 조회가 완료되었습니다.",
-      data: curationList,
-      pagination: {
-        page: pagination.page,
-        pageSize: pagination.pageSize,
-      },
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      totalItemCount: result.totalItemCount,
+      data: curationList.data,
     });
   } catch (error) {
     next(error);
