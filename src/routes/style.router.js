@@ -4,10 +4,11 @@ import express from "express";
 // import StyleController from "../controllers/style.controller.js";
 
 import {
-   getStylesController,
-   findStyleController,
-   // StyleController,
+  getStylesController,
+  findStyleController,
+  // StyleController,
 } from "../controllers/style.controller.js";
+import { popularTagsController } from "../controllers/tag.controller.js";
 import { validateRegisterStyle } from "../middleware/validation.middleware.js";
 
 const router = express.Router();

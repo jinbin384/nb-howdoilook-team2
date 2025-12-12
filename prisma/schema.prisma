@@ -11,45 +11,45 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  //url      = env("DATABASE_URL")
 }
 
 model Style {
-  id           BigInt   @id @default(autoincrement())
-  title        String
-  nickname     String
-  thumbnail    String?
-  tags         String[] @default([])
-  components   String[] @default([])
-  description  String?
-  views        Int      @default(0)
-  curatedCount Int      @default(0)
-  images       String[] @default([])
-  createdAt    DateTime @default(now())
-
-  curations     Curation[] // Curation 모델과의 1:N 관계
+  id              BigInt    @id @default(autoincrement())
+  nickname        String
+  title           String
+  content         String
+  password        String
+  thumbnail       String?    
+  categories      Json
+  tags            String[]  @default([])
+  imageUrls       String[]  @default([])
+  viewCount       Int       @default(0)
+  curationCount   Int       @default(0)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime? @updatedAt @db.Timestamptz(6)
+   //1:N 관계
+  curations       Curation[]
 }
+
 
 model Curation {
   // Primary Key, 자동 증가
   id          BigInt   @id @default(autoincrement())
-
-  // front-end에서 숫자로만 점수를 받아옴
   // style 과는 N:1 관계, Foreign Key - 필수
   styleId     BigInt
   style       Style   @relation(fields: [styleId], references: [id])
 
-  // 점수 - 필수
-  trendyScore            BigInt 
-  individualityScore     BigInt
-  practicalityScore      BigInt
-  costEffectivenessScore BigInt
+  nickname    String
+  content     String
 
-  oneLineReview String
-  postNickname  String
-  password      String
-  createdAt     DateTime @default(now())
-  
+  // front-end에서 숫자로만 점수를 받아옴
+  // 점수 - 필수
+  trendy             Int 
+  personality        Int
+  practicality       Int
+  costEffectiveness  Int
+  createdAt          DateTime @default(now())
+  password           String
   // reply와는 1:1 관계 ( 큐레이팅에 대한 답글은 최대 1개 )
   // reply Reply?
 }

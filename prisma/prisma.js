@@ -23,7 +23,7 @@ const { PrismaClient } = await import("@prisma/client");
 const { Pool } = pgPkg;
 
 const pool = new Pool({
-   connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
 });
 
 const adapter = new PrismaPg(pool);
