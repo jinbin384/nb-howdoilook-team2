@@ -10,14 +10,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-<<<<<<< HEAD
-<<<<<<< HEAD
-  url      = env("DATABASE_URL")
-=======
->>>>>>> dev
-=======
-  //url      = env("DATABASE_URL")
->>>>>>> dev
 }
 
 model Style {
@@ -26,16 +18,7 @@ model Style {
   title           String
   content         String
   password        String
-<<<<<<< HEAD
-<<<<<<< HEAD
   thumbnail       String?
-
-=======
-  thumbnail       String?    
->>>>>>> dev
-=======
-  thumbnail       String?
->>>>>>> dev
   categories      Json
   tags            String[]  @default([])
   imageUrls       String[]  @default([])
@@ -68,9 +51,7 @@ model Curation {
   createdAt         DateTime @default(now()) @db.Timestamptz(6)
   password          String   
   // reply와는 1:1 관계 ( 큐레이팅에 대한 답글은 최대 1개 )
-<<<<<<< HEAD
   // reply Reply?
-=======
   // Prisma가 자동으로 관계를 추론할 수 없는 모호한 상황을 방지하기 위함( name )
   reply             Reply?   @relation(name: "CurationToReply") 
 }
@@ -84,5 +65,4 @@ model Reply {
   createdAt   DateTime @default(now())
   
   curation    Curation @relation(name: "CurationToReply", fields: [curationId], references: [id])
->>>>>>> dev
 }
