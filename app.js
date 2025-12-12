@@ -9,6 +9,7 @@ import {
 import { errorHandler } from "./src/utils/errorHandler.js";
 import router from "./src/routes/style.router.js";
 import tagRouter from "./src/routes/tag.router.js";
+import replyRouter from "./routes/reply.router.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/curations", curationRouter);
 app.use("/styles", router);
 app.use("/tags", tagRouter);
+app.use("/", replyRouter);
 
 app.get("/", (req, res) => {
   res.json({
