@@ -16,7 +16,7 @@ export const getStylesService = async ({ page, limit, sort, search, tag }) => {
   if (sort === "curatedCount") orderByOption = { curatedCount: "desc" };
 
   const where = {};
-
+  // 검색어가 들어오면 검색 들어왔을때 빈 문자열("")이면 모두 조회되도록 처리
   if (search && search.trim() !== "") {
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },

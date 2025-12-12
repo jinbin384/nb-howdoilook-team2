@@ -20,7 +20,7 @@ model Style {
   title           String
   content         String
   password        String
-  thumbnail       String?    
+  thumbnail       String?
   categories      Json
   tags            String[]  @default([])
   imageUrls       String[]  @default([])
