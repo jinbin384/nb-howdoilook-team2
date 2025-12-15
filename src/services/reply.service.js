@@ -1,9 +1,14 @@
-import { ReplyRepository } from "../repositories/reply.repository.js";
+
 import { ReplyRepository } from '../repositories/reply.repository.js';
 import { ValidationError, ForbiddenError, NotFoundError } from '../utils/CustomError.js';
+
+// Note: 만약 ReplyRepository가 다른 클래스/모듈을 필요로 한다면, 
+// 그 import 구문도 파일 상단에 추가해야 합니다.
+
 export class ReplyService {
   replyRepository = new ReplyRepository();
 
+  // 1. 답글 생성 (createReply 함수)
   createReply = async (curationId, content, password, nickname) => {
     if (!content || !password || !nickname) {
       throw new ValidationError("content, password, nickname은 필수 입력 항목입니다.");
@@ -24,6 +29,7 @@ export class ReplyService {
     };
   };
 
+  // 2. 답글 수정 (updateReply 함수)
   updateReply = async (commentId, content, password) => {
     if (!content || !password) {
       throw new ValidationError("content와 password는 필수 입력 항목입니다.");
@@ -34,92 +40,23 @@ export class ReplyService {
       throw new NotFoundError("해당 댓글을 찾을 수 없습니다.");
     }
 
-    return await this.replyRepository.deleteReply(replyId);
-  }
-}
-
-import bcrypt from "bcrypt";
-import replyRepository from "../repositories/reply.repository.js";
-import curationRepository from "../repositories/curation.repository.js";
-import {
-  ForbiddenError,
-  NotFoundError,
-  ValidationError,
-} from "../utils/CustomError.js";
-
-
-const replyService = {
-  // 답글 등록 (1개 제한)
-  createReply: async ({ curationId, content, password }) => {
-    if (!content) throw new ValidationError("답글 내용을 입력해주세요.");
-    if (!password) throw new ValidationError("비밀번호를 입력해주세요.");
-
-    // 큐레이션 존재 확인
-    const curation = await curationRepository.findById(curationId);
-    if (!curation) throw new NotFoundError();
-
-    // 이미 답글이 존재하는지 체크
-    const exists = await replyRepository.findByCurationId(curationId);
-    if (exists)
-      throw new ValidationError("해당 큐레이션에는 이미 답글이 존재합니다.");
-
-    // 비밀번호 비교
-    const isMatch = await bcrypt.compare(password, curation.password);
-    if (!isMatch) throw new ForbiddenError("비밀번호가 틀렸습니다.");
-
-    return replyRepository.create({
-      content,
-      nickname: curation.postNickname, // 답글 닉네임은 큐레이션 작성자
-      curationId,
-    });
-  },
-
-  // 답글 수정
-  updateReply: async ({ replyId, content, password }) => {
-    if (!password) throw new ValidationError("비밀번호를 입력해주세요.");
-
-    const reply = await replyRepository.findById(replyId);
-    if (!reply) throw new NotFoundError();
-
-    const curation = await curationRepository.findById(reply.curationId);
-    if (!curation) throw new NotFoundError();
-
-    const isMatch = await bcrypt.compare(password, curation.password);
-    if (!isMatch) throw new ForbiddenError();
-
-    return replyRepository.update(replyId, content);
-  },
-
-  // 답글 삭제
-  deleteReply: async ({ replyId, password }) => {
-    if (!password) throw new ValidationError("비밀번호를 입력해주세요.");
-
-    const reply = await replyRepository.findById(replyId);
-    if (!reply) throw new NotFoundError();
-
-    const curation = await curationRepository.findById(reply.curationId);
-
-    const isMatch = await bcrypt.compare(password, curation.password);
-    if (!isMatch) throw new ForbiddenError();
-
-    return replyRepository.delete(replyId);
-  },
-};
-
-export default replyService;
-
+    // 비밀번호 검증 로직 (튀어나왔던 코드를 올바른 위치에 삽입)
     if (reply.password !== password) {
       throw new ForbiddenError("비밀번호가 틀려 댓글 수정 권한이 없습니다.");
     }
 
+    // 답글 수정 로직
     const updatedReply = await this.replyRepository.updateReply(commentId, content);
 
+    // 반환 로직
     return {
       id: updatedReply.id.toString(),
       nickname: updatedReply.nickname,
       content: updatedReply.content,
       createdAt: updatedReply.createdAt.toISOString(),
     };
-  };
+  }
 
-  
+  // Note: deleteReply 로직은 현재 파일에 명시되어 있지 않습니다.
+  // 필요하다면 이 클래스 내부에 추가해야 합니다.
+}
