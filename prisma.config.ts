@@ -6,7 +6,7 @@ const databaseUrl = process.env.DATABASE_URL as string;
 export default defineConfig({
   schema: "prisma/schema.prisma",
 
-  // datasource 구조 수정
+  
   datasource: {
     url: databaseUrl, 
   },
