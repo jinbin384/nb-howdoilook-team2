@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pkg from "pg";
@@ -12,51 +11,25 @@ const pool = new Pool({
 
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
-=======
-import prisma from '../../prisma/prisma.js'; 
->>>>>>> 3c3a81a (갈아엎기)
 
 export class ReplyRepository {
-  createReply = async (curationId, content, password, nickname) => {
-    const createdReply = await prisma.reply.create({
+  // 댓글 생성
+  async createReply(curationId, nickname, password, content) {
+    return await prisma.reply.create({
       data: {
-        curationId: BigInt(curationId), 
-        content,
-        password,
+        curationId,
         nickname,
-      },
-    });
-    return createdReply;
-  };
-
-  findReplyById = async (commentId) => {
-    const reply = await prisma.reply.findUnique({
-      where: {
-        id: BigInt(commentId),
-      },
-    });
-    return reply;
-  };
-
-  updateReply = async (commentId, content) => {
-    const updatedReply = await prisma.reply.update({
-      where: {
-        id: BigInt(commentId),
-      },
-      data: {
+        password,
         content,
       },
     });
-    return updatedReply;
-  };
+  }
 
-  deleteReply = async (commentId) => {
-    const deletedReply = await prisma.reply.delete({
-      where: {
-        id: BigInt(commentId),
-      },
+  // 특정 큐레이션에 이미 댓글이 있는지 확인(1:1 규칙)
+  async findReplyByCurationId(curationId) {
+    return await prisma.reply.findUnique({
+      where: { curationId },
     });
-<<<<<<< HEAD
   }
 
   // ✔ 댓글 id로 조회
@@ -81,56 +54,3 @@ export class ReplyRepository {
     });
   }
 }
-=======
-import prisma from "../../prisma/prisma.js";
-
-export class Reply {
-  constructor(id, content, nickname, curationId, createdAt) {
-    this.id = id;
-    this.content = content;
-    this.nickname = nickname;
-    this.curationId = curationId;
-    this.createdAt = createdAt;
-  }
-}
-
-const replyRepository = {
-  findByCurationId: async (curationId) => {
-    return prisma.reply.findFirst({
-      where: { curationId },
-    });
-  },
-
-  create: async ({ content, nickname, curationId }) => {
-    return prisma.reply.create({
-      data: { content, nickname, curationId },
-    });
-  },
-
-  update: async (id, content) => {
-    return prisma.reply.update({
-      where: { id },
-      data: { content },
-    });
-  },
-
-  delete: async (id) => {
-    return prisma.reply.delete({
-      where: { id },
-    });
-  },
-
-  findById: async (replyId) => {
-    return prisma.reply.findUnique({
-      where: { id: replyId },
-    });
-  },
-};
-
-export default replyRepository;
->>>>>>> a37799b (댓글기능구현3일차)
-=======
-    return deletedReply;
-  };
-}
->>>>>>> 3c3a81a (갈아엎기)

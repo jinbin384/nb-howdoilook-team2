@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { ReplyRepository } from "../repositories/reply.repository.js";
-=======
 import { ReplyRepository } from '../repositories/reply.repository.js';
 import { ValidationError, ForbiddenError, NotFoundError } from '../utils/CustomError.js';
->>>>>>> 3c3a81a (갈아엎기)
-
 export class ReplyService {
   replyRepository = new ReplyRepository();
 
@@ -39,11 +34,10 @@ export class ReplyService {
       throw new NotFoundError("해당 댓글을 찾을 수 없습니다.");
     }
 
-<<<<<<< HEAD
     return await this.replyRepository.deleteReply(replyId);
   }
 }
-=======
+
 import bcrypt from "bcrypt";
 import replyRepository from "../repositories/reply.repository.js";
 import curationRepository from "../repositories/curation.repository.js";
@@ -113,17 +107,7 @@ const replyService = {
 };
 
 export default replyService;
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> a37799b (댓글기능구현3일차)
-=======
-//test
->>>>>>> a99cdbc (pull&pr)
-=======
 
-//test pull & pr
->>>>>>> e137929 (pr테스트)
-=======
     if (reply.password !== password) {
       throw new ForbiddenError("비밀번호가 틀려 댓글 수정 권한이 없습니다.");
     }
@@ -138,23 +122,4 @@ export default replyService;
     };
   };
 
-  deleteReply = async (commentId, password) => {
-    if (!password) {
-      throw new ValidationError("password는 필수 입력 항목입니다.");
-    }
-
-    const reply = await this.replyRepository.findReplyById(commentId);
-    if (!reply) {
-      throw new NotFoundError("해당 댓글을 찾을 수 없습니다.");
-    }
-
-    if (reply.password !== password) {
-      throw new ForbiddenError("비밀번호가 틀려 댓글 삭제 권한이 없습니다.");
-    }
-
-    await this.replyRepository.deleteReply(commentId);
-
-    return "댓글 삭제 성공";
-  };
-}
->>>>>>> 3c3a81a (갈아엎기)
+  

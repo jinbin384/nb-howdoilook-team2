@@ -1,27 +1,18 @@
-import { defineConfig } from "@prisma/config";
+import 'dotenv/config'; 
+import { defineConfig } from "prisma/config"; 
 
-<<<<<<< HEAD
+const databaseUrl = process.env.DATABASE_URL as string; 
+
 export default defineConfig({
-<<<<<<< HEAD
   schema: "prisma/schema.prisma",
+
+  // datasource 구조 수정
+  datasource: {
+    url: databaseUrl, 
+  },
+
   migrations: {
     path: "prisma/migrations",
     seed: "node ./prisma/db/seed/seed.js",
-=======
-export default {
-  datasources: {
-    db: {
-      adapter: 'postgresql',
-      url: process.env.DATABASE_URL,
-    },
-  },
-};
->>>>>>> a37799b (댓글기능구현3일차)
-=======
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL!, 
-    },
   },
 });
->>>>>>> 3c3a81a (갈아엎기)
