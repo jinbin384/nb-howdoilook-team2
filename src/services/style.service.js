@@ -1,78 +1,63 @@
 import prisma from "../../prisma/prisma.js";
 import { Style, StyleDetail } from "../models/Style.js";
-import {
-  getStylesList,
-  getFindStyle,
-  increaseViewCount,
-  countStyles,
-} from "../repositories/style.repository.js";
+import StyleRepository from "../repositories/style.repository.js";
 
-//목록조회, 오프셋페이지네이션, 검색, 정렬기준
-export const getStylesService = async ({ page, limit, sort, search }) => {
-  const skip = (page - 1) * limit;
+class StyleService {
+  //목록조회, 오프셋페이지네이션, 검색, 정렬기준
+  getStyles = async ({ page, limit, sort, search }) => {
+    const skip = (page - 1) * limit;
 
-  let orderByOption = { createdAt: "desc" };
-  if (sort === "viewCount") orderByOption = { viewCount: "desc" };
-  if (sort === "curatedCount") orderByOption = { curatedCount: "desc" };
+    //정렬기준
+    let orderByOption = { createdAt: "desc" };
+    if (sort === "viewCount") orderByOption = { viewCount: "desc" };
+    if (sort === "curationCount") orderByOption = { curationCount: "desc" };
 
-  const where = {};
-  // 검색어가 들어오면 검색 들어왔을때 빈 문자열("")이면 모두 조회되도록 처리
-  if (search && search.trim() !== "") {
-    where.OR = [
-      { title: { contains: search, mode: "insensitive" } },
-      { nickname: { contains: search, mode: "insensitive" } },
-      { content: { contains: search, mode: "insensitive" } },
-      { tags: { has: search } },
-    ];
-  }
+    const where = {};
+    // 검색어가 들어왔을때 제목, 닉네임, 내용, 태그에 대해 검색
+    // 빈 문자열("")이면 모두 조회되도록 처리
+    if (search && search.trim() !== "") {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { nickname: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
+        { tags: { has: search } },
+      ];
+    }
 
-  const totalItemCount = await countStyles(where);
+    // 게시글 총 개수 가져오기
+    const totalItemCount = await StyleRepository.countStyles(where);
 
-  const styles = await getStylesList({
-    where,
-    skip,
-    limit,
-    orderBy: orderByOption,
-  });
+    // 검색어, 페이지네이션, 정렬기준에 따른 스타일 목록 가져오기
+    const styles = await StyleRepository.getStylesList({
+      where,
+      skip,
+      limit,
+      orderBy: orderByOption,
+    });
 
-  return {
-    currentPage: page,
-    totalPages: Math.ceil(totalItemCount / limit),
-    totalItemCount,
-    data: styles.map((s) => Style.fromEntity(s)),
+    // 현재페이지, 총페이지수, 총아이템수, 데이터
+    // 데이터는 src/models/Style.js의 fromEntity 메서드를 사용해 Style 인스턴스로 매핑
+    return {
+      currentPage: page,
+      totalPages: Math.ceil(totalItemCount / limit),
+      totalItemCount,
+      data: styles.map((s) => Style.fromEntity(s)), // Style 인스턴스로 매핑(캡슐화)
+    };
   };
-};
 
-//상세조회
-export const findStyleService = async (styleId) => {
-  const style = await getFindStyle(styleId);
-  if (!style) return null;
+  //상세조회
+  findStyle = async (styleId) => {
+    const style = await StyleRepository.getFindStyle(styleId);
+    // 조회수 증가
+    await StyleRepository.increaseViewCount(styleId);
+    // id가 존재하지 않으면 null 반환
+    if (!style) return null;
 
-  // 조회수 증가
-  await increaseViewCount(styleId);
-
-  // API 명세서 형식에 맞추기
-  return {
-    id: style.id.toString(),
-    nickname: style.nickname,
-    title: style.title,
-    content: style.content,
-    viewCount: style.viewCount,
-    curationCount: style.curationCount,
-    createdAt: style.createdAt,
-    tags: style.tags,
-    imageUrls: style.imageUrls ?? [],
-
-    categories: style.categories
-      ? {
-          top: style.categories.top,
-          bottom: style.categories.bottom,
-        }
-      : null,
+    // API 명세서 형식에 맞추기(캡슐화)
+    return StyleDetail.fromEntity(style);
   };
-};
 
-export class StyleService {
+  //스타일 작성
   postStyle = async ({
     nickname,
     title,
@@ -114,6 +99,7 @@ export class StyleService {
   };
 }
 
+export default new StyleService();
 // // 스타일 수정 로직
 // updateStyle = async (styleId, password, updateData) => {
 //   // 1. 해당 스타일 존재 여부 확인
