@@ -1,8 +1,9 @@
 import { Router } from "express";
-import curationController from "../controllers/curation.controller.js";
+import CurationController from "../controllers/curation.controller.js";
 import { validateRegisterCuration } from "../middleware/validation.middleware.js";
 import replyRouter from "./reply.router.js";
 
+const curationController = new CurationController();
 // import replyRouter from "./reply.router.js";
 // style.router.js에 // styleId 파라미터 경로에 curationRouter를 마운트
 // styleRouter.use("/:styleId/curations", curationRouter); => 작성 필요
