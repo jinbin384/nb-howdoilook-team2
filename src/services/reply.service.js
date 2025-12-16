@@ -1,11 +1,10 @@
 import { ReplyRepository } from "../repositories/reply.repository.js";
-import { findStyleById } from "../repositories/style.repository.js";
+import styleRepository from "../repositories/style.repository.js";
 import { ValidationError, ForbiddenError, NotFoundError } from "../utils/CustomError.js";
 import prisma from "../../prisma/prisma.js";
 
 export class ReplyService {
    replyRepository = new ReplyRepository();
-
 
   // 1. 답글 등록 
   createReply = async (curationId, content, password) => {
@@ -26,7 +25,7 @@ export class ReplyService {
     }
 
     // 스타일 조회 
-    const style = await getFindStyle(curation.styleId);
+    const style = await styleRepository.getFindStyle(curation.styleId);
     if (!style) {
       throw new NotFoundError("스타일이 존재하지 않습니다.");
     }
@@ -81,7 +80,8 @@ export class ReplyService {
     });
 
     // 3. 스타일 조회
-    const style = await getFindStyle(curation.styleId);
+    const style = await styleRepository.getFindStyle(curation.styleId);
+
     
     // 4. 스타일 비밀번호 검증 
     if (style.password.trim() !== password.trim()) {
@@ -121,7 +121,8 @@ export class ReplyService {
     });
 
     // 3. 스타일 조회
-    const style = await getFindStyle(curation.styleId);
+    const style = await styleRepository.getFindStyle(curation.styleId);
+
     
     // 4. 스타일 비밀번호 검증 
     if (style.password.trim() !== password.trim()) {
@@ -134,4 +135,3 @@ export class ReplyService {
     return "답글이 성공적으로 삭제되었습니다.";
   }
 }
-
