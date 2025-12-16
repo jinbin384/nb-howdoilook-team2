@@ -7,6 +7,7 @@ import router from "./src/routes/style.router.js";
 import tagRouter from "./src/routes/tag.router.js";
 import rankingRouter from "./src/routes/ranking.router.js";
 
+
 dotenv.config();
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/styles", router);
 app.use("/tags", tagRouter);
 app.use("/images", imageRouter);
 app.use("/ranking", rankingRouter);
+app.use("/", replyRouter);
 
 app.get("/", (req, res) => {
    res.json({
