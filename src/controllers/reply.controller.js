@@ -1,4 +1,4 @@
-import { ReplyService } from '../services/reply.service.js';
+import { ReplyService } from "../services/reply.service.js";
 
 export class ReplyController {
   constructor() {
@@ -32,11 +32,7 @@ export class ReplyController {
       const { commentId } = req.params;
       const { content, password } = req.body;
 
-      const data = await this.replyService.updateReply(
-        commentId,
-        content,
-        password
-      );
+         const data = await this.replyService.updateReply(commentId, content, password);
 
       return res.status(200).json(data);
     } catch (error) {
@@ -49,10 +45,7 @@ export class ReplyController {
       const { commentId } = req.params;
       const { password } = req.body;
 
-      const message = await this.replyService.deleteReply(
-        commentId,
-        password
-      );
+         const message = await this.replyService.deleteReply(commentId, password);
 
       return res.status(200).json({ message });
     } catch (error) {

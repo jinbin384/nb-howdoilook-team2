@@ -1,22 +1,24 @@
 import express from "express";
+import StyleController from "../controllers/style.controller.js";
 import {
-  getStylesController,
-  findStyleController,
-  postStyleController,
-} from "../controllers/style.controller.js";
-import { popularTagsController } from "../controllers/tag.controller.js";
-import { validateRegisterStyle } from "../middleware/validation.middleware.js";
+  validateRegisterStyle,
+  validateGetStylesList,
+  validateFindStyle,
+} from "../middleware/validation.middleware.js";
+import curationRouter from "./curation.router.js";
 
 const router = express.Router();
 
 // style.router.js에 styleId 파라미터 경로에 curationRouter를 마운트
-// router.use("/:styleId/curations", curationRouter);
+router.use("/:styleId/curations", curationRouter);
 
-router.get("/", getStylesController);
-router.get("/:id", findStyleController);
+// GET /styles 엔드포인트: 스타일 목록 조회
+router.get("/", validateGetStylesList, StyleController.getStyles);
+// GET /styles/:styleId 엔드포인트: 스타일 상세 조회
+router.get("/:styleId", validateFindStyle, StyleController.findStyle);
 
 // POST /styles 엔드포인트: 미들웨어를 먼저 실행 후 컨트롤러 호출
-router.post("/", validateRegisterStyle, postStyleController);
+router.post("/", validateRegisterStyle, StyleController.postStyle);
 
 /**
  * @swagger

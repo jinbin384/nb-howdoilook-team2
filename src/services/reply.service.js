@@ -4,7 +4,8 @@ import { ValidationError, ForbiddenError, NotFoundError } from "../utils/CustomE
 import prisma from "../../prisma/prisma.js";
 
 export class ReplyService {
-  replyRepository = new ReplyRepository();
+   replyRepository = new ReplyRepository();
+
 
   // 1. 답글 등록 
   createReply = async (curationId, content, password) => {
@@ -133,3 +134,4 @@ export class ReplyService {
     return "답글이 성공적으로 삭제되었습니다.";
   }
 }
+

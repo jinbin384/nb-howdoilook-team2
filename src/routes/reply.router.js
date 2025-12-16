@@ -1,25 +1,20 @@
-import express from 'express';
-import { ReplyController } from '../controllers/reply.controller.js';
+import express from "express";
+import { ReplyController } from "../controllers/reply.controller.js";
 
-const router = express.Router();
+const router = express.Router({
+   // curationRouter의 :curationId 파라미터를 상속받음
+   mergeParams: true,
+});
 const replyController = new ReplyController();
 
-router.post(
-  '/curations/:curationId/comments',
-  replyController.createReply
-);
+router.post("/", replyController.createReply);
 
-router.put(
-  '/comments/:commentId',
-  replyController.updateReply
-);
+router.put("/:commentId", replyController.updateReply);
 
-router.delete(
-  '/comments/:commentId',
-  replyController.deleteReply
-);
+router.delete("/:commentId", replyController.deleteReply);
 
 
 export default router;
+
 
 
