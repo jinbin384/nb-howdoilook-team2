@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   createCurationController,
   getCurationListController,
-  updateCurationController,
-  deleteCurationController,
+  //updateCurationController,
+  //deleteCurationController,
 } from "../controllers/curation.controller.js";
 
 // 3. 필요한 라우터 및 미들웨어를 Import 합니다.
@@ -37,15 +37,15 @@ curationRouter
 
 curationRouter
   // '/curations/:curationId' 경로 처리
-  .route("/:curationId")
+  .route("/:curationId");
 
-  // 큐레이팅 수정 (Controller 함수 직접 연결)
-  // PUT /curations/:curationId
-  .put(updateCurationController)
+// 큐레이팅 수정 (Controller 함수 직접 연결)
+// PUT /curations/:curationId
+//.put(updateCurationController);
 
-  // 큐레이팅 삭제 (Controller 함수 직접 연결)
-  // DELETE /curations/:curationId
-  .delete(deleteCurationController);
+// 큐레이팅 삭제 (Controller 함수 직접 연결)
+// DELETE /curations/:curationId
+//.delete(deleteCurationController);
 
 // Default Export로 router 객체를 내보냅니다.
 export default curationRouter;
