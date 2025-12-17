@@ -9,30 +9,45 @@ import {
 } from "../controllers/style.controller.js";
 import { popularTagsController } from "../controllers/tag.controller.js";
 
-// 💡 [수정] 미들웨어 import: 누락된 validateRegisterStyle을 추가합니다.
+import { Router } from "express";
+import StyleController from "../controllers/style.controller.js";
+
+// ✅ 아래 import 목록에 validateFindStyle을 추가합니다.
 import {
-  validateRegisterStyle, // 🚨 추가: POST 요청 유효성 검사 미들웨어
+  validateGetStylesList,
+  validateRegisterStyle,
   validateUpdateStyle,
   validateDeleteStyle,
+  validateFindStyle, // 👈 이 부분을 추가하세요!
 } from "../middleware/validation.middleware.js";
 
-const router = express.Router();
+const router = Router();
 
 // style.router.js에 styleId 파라미터 경로에 curationRouter를 마운트
 // router.use("/:styleId/curations", curationRouter);
 
-router.get("/", getStylesController);
-router.get("/:id", findStyleController);
+// GET /styles 엔드포인트: 스타일 목록 조회
+router.get("/", validateGetStylesList, StyleController.getStyles);
+// GET /styles/:styleId 엔드포인트: 스타일 상세 조회
+router.get("/:styleId", validateFindStyle, StyleController.findStyle);
 
-// 🚨 [수정] POST 라우트 통합:
-// validateRegisterStyle 미들웨어와 createStyleController 컨트롤러를 사용해 하나의 POST 라우트로 통합합니다.
-router.post("/", validateRegisterStyle, createStyleController);
+// POST /styles 엔드포인트: 미들웨어를 먼저 실행 후 컨트롤러 호출
+router.post("/", validateRegisterStyle, StyleController.createStyle);
 
-// 💡 PUT /styles/:id (수정) 라우트 연결
-router.put("/:id", validateUpdateStyle, updateStyleController);
-
-// 💡 DELETE /styles/:id (삭제) 라우트 연결
-router.delete("/:id", validateDeleteStyle, deleteStyleController);
+// PUT /styles/:styleId 엔드포인트: 스타일 수정 (validateFindStyle로 ID 형식 검증)
+router.put(
+  "/:styleId",
+  validateFindStyle,
+  validateUpdateStyle,
+  StyleController.updateStyle
+);
+// DELETE /styles/:styleId 엔드포인트: 스타일 삭제
+router.delete(
+  "/:styleId",
+  validateFindStyle,
+  validateDeleteStyle,
+  StyleController.deleteStyle
+);
 
 /**
  * @swagger

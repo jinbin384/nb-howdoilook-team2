@@ -1,6 +1,6 @@
 import {
   getStylesService,
-  findStyleService,
+  // findStyleService,
   updateStyleService, // 추가
   deleteStyleService, // 추가
   createStyleService, // 💡 추가: POST 요청 처리를 위한 서비스 함수
@@ -56,16 +56,14 @@ export const findStyleController = async (req, res, next) => {
 };
 
 // POST /style: 새로운 스타일 게시물을 등록합니다.
-export const postStyleController = async (req, res, next) => {
+export const postStyle = async (req, res, next) => {
   try {
-    const styleServiceInstance = new StyleService();
-
     // 유효성 검사 미들웨어를 통과한 데이터
     const { nickname, title, content, password, categories, tags, imageUrls } =
       req.body;
 
     // 인스턴스를 통해 POST 메서드를 호출
-    const createdStyle = await styleServiceInstance.postStyle({
+    const createdStyle = await StyleService.postStyle({
       nickname,
       title,
       content,
@@ -152,3 +150,13 @@ export const createStyleController = async (req, res, next) => {
     next(error);
   }
 };
+
+const StyleController = {
+  getStyles: getStylesController,
+  findStyle: findStyleController,
+  createStyle: createStyleController, // 👈 여기가 'createStyle'로 되어 있는지 확인!
+  updateStyle: updateStyleController,
+  deleteStyle: deleteStyleController,
+};
+
+export default StyleController;

@@ -3,13 +3,13 @@ import { Style, StyleDetail } from "../models/Style.js";
 import {
   getStylesList,
   // 💡 Alias 적용: getFindStyle 함수를 가져와서 findStyleById 라는 이름으로 사용
-  getFindStyle as findStyleById,
-  increaseViewCount,
+  // getFindStyle as findStyleById,
+  // increaseViewCount,
   updateStyle, // 추가
   deleteStyle, // 추가
   createStyle, // 추가
   // 💡 [수정됨] countStyles 함수를 Repository에서 가져옵니다.
-  countStyles,
+  // countStyles,
 } from "../repositories/style.repository.js";
 import { ForbiddenError, NotFoundError } from "../utils/CustomError.js"; // 커스텀 에러
 
@@ -17,12 +17,14 @@ import { ForbiddenError, NotFoundError } from "../utils/CustomError.js"; // 커�
 export const getStylesService = async ({ page, limit, sort, search }) => {
   const skip = (page - 1) * limit;
 
+  //정렬기준
   let orderByOption = { createdAt: "desc" };
   if (sort === "viewCount") orderByOption = { viewCount: "desc" };
-  if (sort === "curatedCount") orderByOption = { curatedCount: "desc" };
+  if (sort === "curationCount") orderByOption = { curationCount: "desc" };
 
   const where = {};
-  // 검색어가 들어오면 검색 들어왔을때 빈 문자열("")이면 모두 조회되도록 처리
+  // 검색어가 들어왔을때 제목, 닉네임, 내용, 태그에 대해 검색
+  // 빈 문자열("")이면 모두 조회되도록 처리
   if (search && search.trim() !== "") {
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },
@@ -32,94 +34,83 @@ export const getStylesService = async ({ page, limit, sort, search }) => {
     ];
   }
 
-  const totalItemCount = await countStyles(where);
+  // 게시글 총 개수 가져오기
+  const totalItemCount = await StyleRepository.countStyles(where);
 
-  const styles = await getStylesList({
+  // 검색어, 페이지네이션, 정렬기준에 따른 스타일 목록 가져오기
+  const styles = await StyleRepository.getStylesList({
     where,
     skip,
     limit,
     orderBy: orderByOption,
   });
 
+  // 현재페이지, 총페이지수, 총아이템수, 데이터
+  // 데이터는 src/models/Style.js의 fromEntity 메서드를 사용해 Style 인스턴스로 매핑
   return {
     currentPage: page,
     totalPages: Math.ceil(totalItemCount / limit),
     totalItemCount,
-    data: styles.map((s) => Style.fromEntity(s)),
+    data: styles.map((s) => Style.fromEntity(s)), // Style 인스턴스로 매핑(캡슐화)
   };
 };
 
 //상세조회
-export const findStyleService = async (styleId) => {
-  // 🔽 [수정됨] findStyleById (별칭)을 사용하여 조회
-  const style = await findStyleById(styleId);
-  if (!style) return null;
+export const findStyle = async (styleId) => {
+  const style = await StyleRepository.getFindStyle(styleId);
+
+  // 스타일이 존재하지 않으면 NotFoundError 발생
+  if (!style) {
+    throw new NotFoundError("해당 스타일을 찾을 수 없습니다.");
+  }
 
   // 조회수 증가
-  await increaseViewCount(styleId);
+  await StyleRepository.increaseViewCount(styleId);
 
-  // API 명세서 형식에 맞추기
-  return {
-    id: style.id.toString(),
-    nickname: style.nickname,
-    title: style.title,
-    content: style.content,
-    viewCount: style.viewCount,
-    curationCount: style.curationCount,
-    createdAt: style.createdAt,
-    tags: style.tags,
-    imageUrls: style.imageUrls ?? [],
-
-    categories: style.categories
-      ? {
-          top: style.categories.top,
-          bottom: style.categories.bottom,
-        }
-      : null,
-  };
+  // API 명세서 형식에 맞추기(캡슐화)
+  return StyleDetail.fromEntity(style);
 };
 
-export class StyleService {
-  postStyle = async ({
-    nickname,
-    title,
-    content,
-    password,
-    categories,
-    tags,
-    imageUrls,
-  }) => {
-    // 1. thumbnail 필드 처리: imageUrls 배열의 첫 번째 요소를 thumbnail로 사용
-    const thumbnail = imageUrls && imageUrls.length > 0 ? imageUrls[0] : null;
+//스타일 작성
+export const postStyle = async ({
+  nickname,
+  title,
+  content,
+  password,
+  categories,
+  tags,
+  imageUrls,
+}) => {
+  // 1. thumbnail 필드 처리: imageUrls 배열의 첫 번째 요소를 thumbnail로 사용
+  const thumbnail = imageUrls && imageUrls.length > 0 ? imageUrls[0] : null;
 
-    const newStyle = await prisma.style.create({
-      data: {
-        nickname,
-        title,
-        content,
-        password,
-        thumbnail,
-        categories,
-        tags,
-        imageUrls,
-      },
-      select: {
-        id: true,
-        nickname: true,
-        title: true,
-        content: true,
-        thumbnail: true,
-        viewCount: true,
-        curationCount: true,
-        createdAt: true,
-        categories: true,
-        tags: true,
-        imageUrls: true,
-      },
-    });
-    return newStyle;
-  };
-}
+  const newStyle = await prisma.style.create({
+    data: {
+      nickname,
+      title,
+      content,
+      password,
+      thumbnail,
+      categories,
+      tags,
+      imageUrls,
+    },
+    select: {
+      id: true,
+      nickname: true,
+      title: true,
+      content: true,
+      thumbnail: true,
+      viewCount: true,
+      curationCount: true,
+      createdAt: true,
+      categories: true,
+      tags: true,
+      imageUrls: true,
+    },
+  });
+  return newStyle;
+};
 
 // // 스타일 수정 로직
 export const updateStyleService = async (styleId, password, updateData) => {

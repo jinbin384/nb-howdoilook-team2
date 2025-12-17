@@ -38,18 +38,19 @@ export const createStyle = async (styleData) => {
 
 // 총 개수 조회
 export const countStyles = async (where) => {
-  return prisma.style.count({ where });
+  return prisma.style.count({ where }); // 조건에 맞는 스타일 총 개수 반환
 };
 
 // 상세조희
 export const getFindStyle = async (styleId) => {
   return await prisma.style.findUnique({
-    where: { id: BigInt(styleId) },
+    where: { id: BigInt(styleId) }, // ID BIGINT 변환
   });
 };
 
 // 조회 수 증가
 export const increaseViewCount = async (styleId) => {
+  // 상세조회로 들어오면 스타일 ID에 해당하는 조회수 1 증가
   return await prisma.style.update({
     where: { id: BigInt(styleId) },
     data: {
@@ -58,13 +59,34 @@ export const increaseViewCount = async (styleId) => {
   });
 };
 
-// 태그 기반 조회
-export const getStylesByTag = async ({ tag, skip, limit, orderBy }) => {
-  return await prisma.style.findMany({
-    where: { tags: { has: tag } },
+export const updateStyleRatings = async (styleId, data) => {
+  return prisma.style.update({
+    where: { id: BigInt(styleId) },
+    data,
+  });
+};
+
+export const countAll = async () => {
+  return prisma.style.count();
+};
+
+export const findRankingList = async ({ skip, limit, orderBy }) => {
+  return prisma.style.findMany({
     skip,
     take: limit,
     orderBy,
+    select: {
+      id: true,
+      thumbnail: true,
+      nickname: true,
+      title: true,
+      tags: true,
+      categories: true,
+      viewCount: true,
+      curationCount: true,
+      createdAt: true,
+      ratingTotal: true,
+    },
   });
 };
 
@@ -82,3 +104,5 @@ export const deleteStyle = async (styleId) => {
     where: { id: BigInt(styleId) },
   });
 };
+
+export default { getStylesList, createStyle, updateStyle, deleteStyle };

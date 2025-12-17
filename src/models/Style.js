@@ -46,7 +46,7 @@ export class Style {
 //이미지(여러장 가능), 제목, 닉네임, 태그, 스타일 구성, 스타일 설명, 조회수, 큐레이팅수가 표시
 //해당 스타일의 큐레이팅 목록도 포함
 export class StyleDetail {
-  constructor(
+  constructor({
     id,
     nickname,
     title,
@@ -57,8 +57,8 @@ export class StyleDetail {
     categories,
     tags,
     imageUrls,
-    curatedList
-  ) {
+    curations,
+  }) {
     this.id = id;
     this.nickname = nickname;
     this.title = title;
@@ -69,22 +69,32 @@ export class StyleDetail {
     this.categories = categories;
     this.tags = tags;
     this.imageUrls = imageUrls;
-    this.curatedList = curatedList;
+    this.curations = curations;
   }
 
   static fromEntity(entity) {
-    return new StyleDetail(
-      entity.id.toString(),
-      entity.nickname,
-      entity.title,
-      entity.content,
-      entity.viewCount,
-      entity.curationCount,
-      entity.createdAt,
-      entity.categories,
-      entity.tags,
-      entity.imageUrls,
-      entity.curations ?? []
-    );
+    return new StyleDetail({
+      id: entity.id.toString(),
+      nickname: entity.nickname,
+      title: entity.title,
+      content: entity.content,
+      viewCount: entity.viewCount,
+      curationCount: entity.curationCount,
+      createdAt: entity.createdAt,
+      categories: normalizeCategories(entity.categories),
+      tags: entity.tags ?? [],
+      imageUrls: entity.imageUrls ?? [],
+      curations: entity.curations ?? [],
+    });
   }
+}
+
+// api 응답에 맞게 카테고리 정규화
+function normalizeCategories(categories) {
+  if (!categories) return null;
+
+  return {
+    top: categories.top ?? null,
+    bottom: categories.bottom ?? null,
+  };
 }
