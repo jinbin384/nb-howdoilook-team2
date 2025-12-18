@@ -87,6 +87,34 @@ class StyleController {
         password,
         updateData
       );
+<<<<<<< HEAD
+
+      // API 응답 스펙에 맞춰 StyleDetail 형식의 수정된 객체 반환
+      return res.status(200).json(updatedStyle);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // DELETE /style: 스타일 게시물을 삭제합니다.
+  deleteStyle = async (req, res, next) => {
+    try {
+      const styleId = req.params.styleId;
+      const { password } = req.body;
+
+      const deletedStyle = await StyleService.deleteStyle(styleId, password);
+
+      return res.status(200).json({
+        message: "스타일이 성공적으로 삭제되었습니다.",
+        id: deletedStyle.id.toString(),
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+=======
+>>>>>>> dev
 
       // API 응답 스펙에 맞춰 StyleDetail 형식의 수정된 객체 반환
       return res.status(200).json(updatedStyle);
@@ -113,31 +141,4 @@ class StyleController {
   };
 }
 
-// createStyleController 함수 내부 수정
-export const createStyleController = async (req, res, next) => {
-  try {
-    const styleData = req.body;
-    // ...
-    const newStyle = await createStyleService(styleData);
-
-    // 🚨 새로 생성된 객체의 BigInt (ID)를 JSON 직렬화 가능하도록 변환
-    const safeStyle = serializeBigInt(newStyle);
-
-    return res.status(201).json({
-      message: "스타일 등록 성공",
-      data: safeStyle, // 💡 변환된 객체 사용
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const StyleController = {
-  getStyles: getStylesController,
-  findStyle: findStyleController,
-  createStyle: createStyleController, // 👈 여기가 'createStyle'로 되어 있는지 확인!
-  updateStyle: updateStyleController,
-  deleteStyle: deleteStyleController,
-};
-
-export default StyleController;
+export default new StyleController();
